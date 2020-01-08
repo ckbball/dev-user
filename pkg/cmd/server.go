@@ -17,6 +17,7 @@ import (
   "go.mongodb.org/mongo-driver/mongo"
   "go.mongodb.org/mongo-driver/mongo/options"
 
+  "github.com/ckbball/dev-user/pkg/logger"
   userGrpc "github.com/ckbball/dev-user/pkg/protocol/grpc"
   "github.com/ckbball/dev-user/pkg/protocol/rest"
   v1 "github.com/ckbball/dev-user/pkg/service/v1"
@@ -48,6 +49,12 @@ type Config struct {
   MongoName string
   // collection for mongodb
   MongoCollection string
+
+  // Log parameters section
+  // LogLevel is global log level: Debug(-1), Info(0), Warn(1), Error(2), DPanic(3), Panic(4), Fatal(5)
+  LogLevel int
+  // LogTimeFormat is print time format for logger e.g. 2006-01-02T15:04:05Z07:00
+  LogTimeFormat string
 }
 
 // RunServer runs gRPC server and HTTP gateway
@@ -79,6 +86,8 @@ func RunServer() error {
     cfg.MongoAddress = os.Getenv("MONGO_URI")
     cfg.MongoName = os.Getenv("MONGO_NAME")
     cfg.MongoCollection = os.Getenv("MONGO_COLLECTION")
+    cfg.LogLevel = os.Getenv("LOG_LEVEL")
+    cfg.LogTimeFormat = os.Getenv("LOG_TIME")
   }
 
   if len(cfg.GRPCPort) == 0 {
@@ -87,6 +96,11 @@ func RunServer() error {
 
   if len(cfg.HTTPPort) == 0 {
     return fmt.Errorf("invalid TCP port for http server: '%s'", cfg.HTTPPort)
+  }
+
+  // initialize logger
+  if err := logger.Init(cfg.LogLevel, cfg.LogTimeFormat); err != nil {
+    return fmt.Errorf("failed to initialize logger: %v", err)
   }
 
   // add MySQL driver specific parameter to parse date/time

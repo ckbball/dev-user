@@ -2,7 +2,7 @@ package grpc
 
 import (
   "context"
-  "log"
+  "github.com/ckbball/dev-user/pkg/logger"
   "net"
   "os"
   "os/signal"
@@ -10,6 +10,7 @@ import (
   "google.golang.org/grpc"
 
   v1 "github.com/ckbball/dev-user/pkg/api/v1"
+  "github.com/ckbball/dev-user/pkg/protocol/grpc/middleware"
 )
 
 // RunServer runs gRPC service to publish Checkout service
@@ -19,8 +20,12 @@ func RunServer(ctx context.Context, v1API v1.UserServiceServer, port string) err
     return err
   }
 
+  opts := []grpc.ServerOption{}
+
+  opts = middleware.AddLogging(logger.Log, opts)
+
   // register service
-  server := grpc.NewServer()
+  server := grpc.NewServer(opts...)
   v1.RegisterUserServiceServer(server, v1API)
 
   // graceful shutdown
@@ -29,7 +34,7 @@ func RunServer(ctx context.Context, v1API v1.UserServiceServer, port string) err
   go func() {
     for range c {
       // sig is a ^C, handle it
-      log.Println("shutting down gRPC server...")
+      logger.Log.Warn("shutting down gRPC server ...")
 
       server.GracefulStop()
 
@@ -38,6 +43,6 @@ func RunServer(ctx context.Context, v1API v1.UserServiceServer, port string) err
   }()
 
   // start gRPC server
-  log.Println("starting gRPC server...")
+  logger.Log.Info("starting gRPC server ...")
   return server.Serve(listen)
 }
