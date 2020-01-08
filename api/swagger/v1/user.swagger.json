@@ -301,6 +301,12 @@
         },
         "id": {
           "type": "string"
+        },
+        "matched": {
+          "type": "string"
+        },
+        "modified": {
+          "type": "string"
         }
       }
     },

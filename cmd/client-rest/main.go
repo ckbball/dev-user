@@ -59,4 +59,44 @@ func main() {
     fmt.Println("error:", err)
   }
   log.Printf("created struct: %s\n", created)
+
+  // Call UpdateUser
+  resp, err = http.Post(*address+"/v1/users/"+created.Id, "application/json", strings.NewReader(fmt.Sprintf(`
+    {
+      "api":"v1",
+      "user": {
+        "email": "bobby@gmail.com",
+        "password": "haha",
+        "username": "bobbyG",
+        "last_active": 100,
+        "experience": "middle",
+        "languages": ["golang", "ruby", "javascript"]
+      }
+    }
+  `, pfx, pfx, pfx)))
+  if err != nil {
+    log.Fatalf("failed to call UpdateUser method: %v", err)
+  }
+  bodyBytes, err = ioutil.ReadAll(resp.Body)
+  resp.Body.Close()
+  if err != nil {
+    body = fmt.Sprintf("failed read UpdateUser response body: %v", err)
+  } else {
+    body = string(bodyBytes)
+  }
+  log.Printf("UpdateUser response: Code=%d, Body=%s\n\n", resp.StatusCode, body)
+
+  // parse status of UpdateUser
+  var updated struct {
+    API      string `json:"api"`
+    Status   string `json:"status"`
+    Matched  string `json:"matched"`
+    Modified string `json:"modified"`
+  }
+  err = json.Unmarshal(bodyBytes, &updated)
+  if err != nil {
+    log.Fatalf("failed to unmarshal JSON response of UpdateUser method: %v", err)
+    fmt.Println("error:", err)
+  }
+  log.Printf("updated struct: %s\n", updated)
 }
