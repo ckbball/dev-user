@@ -20,6 +20,39 @@
     "application/json"
   ],
   "paths": {
+    "/v1/search": {
+      "post": {
+        "operationId": "FilterUsers",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/userFindResponse"
+            }
+          },
+          "404": {
+            "description": "Returned when resource doesn't exist",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/userFindRequest"
+            }
+          }
+        ],
+        "tags": [
+          "UserService"
+        ]
+      }
+    },
     "/v1/users": {
       "post": {
         "operationId": "CreateUser",
@@ -45,39 +78,6 @@
             "required": true,
             "schema": {
               "$ref": "#/definitions/userUpsertRequest"
-            }
-          }
-        ],
-        "tags": [
-          "UserService"
-        ]
-      }
-    },
-    "/v1/users/search": {
-      "post": {
-        "operationId": "FilterUsers",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/userFindResponse"
-            }
-          },
-          "404": {
-            "description": "Returned when resource doesn't exist",
-            "schema": {
-              "type": "string",
-              "format": "string"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/userFindRequest"
             }
           }
         ],

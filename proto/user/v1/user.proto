@@ -61,7 +61,7 @@ service UserService {
 
   rpc FilterUsers(FindRequest) returns (FindResponse) {
     option (google.api.http) = {
-      post: "/v1/users/search",
+      post: "/v1/search",
       body: "*"
     };
   }

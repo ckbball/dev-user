@@ -4,7 +4,7 @@ import (
   "context"
   //"errors"
   //"fmt"
-  //"log"
+  "log"
   //"strconv"
   //"time"
 
@@ -153,6 +153,10 @@ func (s *handler) FilterUsers(ctx context.Context, req *v1.FindRequest) (*v1.Fin
   }
 
   protoUsers := exportUserModel(users)
+
+  for i, user := range protoUsers {
+    log.Fatal("User: %v Body: %v\n", i, user)
+  }
 
   return &v1.FindResponse{
     Api:    req.Api,

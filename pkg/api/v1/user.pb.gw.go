@@ -565,7 +565,7 @@ var (
 
 	pattern_UserService_GetById_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "users", "id"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_UserService_FilterUsers_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "users", "search"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_UserService_FilterUsers_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "search"}, "", runtime.AssumeColonVerbOpt(true)))
 )
 
 var (

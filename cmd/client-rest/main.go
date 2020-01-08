@@ -118,14 +118,14 @@ func main() {
   */
 
   // Call FilterUsers
-  resp, err = http.Post(*address+"/v1/users/search", "application/json", strings.NewReader(fmt.Sprintf(`
-       {
-         "api":"v1",
-         "language": "java",
-         "page": 1,
-         "limit": 20
-       }
-     `, pfx, pfx, pfx)))
+  resp, err = http.Post(*address+"/v1/search", "application/json", strings.NewReader(fmt.Sprintf(`
+          {
+            "api":"v1",
+            "language": "java",
+            "page": 1,
+            "limit": 20
+          }
+        `, pfx, pfx, pfx)))
   if err != nil {
     log.Fatalf("failed to call FilterUsers method: %v", err)
   }
@@ -138,6 +138,7 @@ func main() {
   }
   log.Printf("FilterUsers searching for users who know java\n")
   log.Printf("FilterUsers response: Code=%d, Body=%s\n\n", resp.StatusCode, body)
+
   /*
      resp, err = http.Post(*address+"/v1/users/search", "application/json", strings.NewReader(fmt.Sprintf(`
        {
@@ -160,4 +161,18 @@ func main() {
      log.Printf("FilterUsers searching for users with middle experience\n")
      log.Printf("FilterUsers response: Code=%d, Body=%s\n\n", resp.StatusCode, body)
   */
+
+  req, err := http.NewRequest("GET", fmt.Sprintf("%s%s/%s", *address, "/v1/users", created.Id), nil)
+  resp, err = http.DefaultClient.Do(req)
+  if err != nil {
+    log.Fatalf("failed to call GetById method: %v", err)
+  }
+  bodyBytes, err = ioutil.ReadAll(resp.Body)
+  resp.Body.Close()
+  if err != nil {
+    body = fmt.Sprintf("failed read GetById response body: %v", err)
+  } else {
+    body = string(bodyBytes)
+  }
+  log.Printf("GetById response: Code=%d, Body=%s\n\n", resp.StatusCode, body)
 }
