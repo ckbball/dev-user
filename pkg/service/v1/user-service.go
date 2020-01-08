@@ -6,10 +6,12 @@ import (
   //"fmt"
   "log"
   //"strconv"
+  "bytes"
+  "net/http"
   //"time"
 
   //"github.com/golang/protobuf/ptypes"
-  //"encoding/json"
+  "encoding/json"
   //"github.com/ThreeDotsLabs/watermill"
   //"github.com/ThreeDotsLabs/watermill/message"
   // "github.com/go-redis/cache/v7"
@@ -36,15 +38,17 @@ GetById(context.Context, *FindRequest) (*FindResponse, error)
 FilterUsers(context.Context, *FindRequest) (*FindResponse, error)
 */
 type handler struct {
-  repo repository
+  repo          repository
+  loggerAddress string
   //subscriber message.Subscriber
   //publisher  message.Publisher
 }
 
-func NewUserServiceServer(repo repository) *handler {
+func NewUserServiceServer(repo repository, loggerAddress string) *handler {
   //subscriber message.Subscriber, publisher message.Publisher) *handler {
   return &handler{
-    repo: repo,
+    repo:          repo,
+    loggerAddress: loggerAddress,
     //subscriber: subscriber,
     //publisher:  publisher,
   }
@@ -152,15 +156,51 @@ func (s *handler) FilterUsers(ctx context.Context, req *v1.FindRequest) (*v1.Fin
     return nil, err
   }
 
+  usersAsBytes, err := json.Marshal(users)
+  if err != nil {
+    return nil, err
+  }
+
+  message := &logMessage{
+    Message: usersAsBytes,
+    Process: "FilterUsers:User Model",
+  }
+
+  messageAsBytes, err := json.Marshal(message)
+  if err != nil {
+    return nil, err
+  }
+
+  _, err = http.Post(s.loggerAddress+"/log", "application/json", bytes.NewBuffer(messageAsBytes))
+  if err != nil {
+    log.Fatalf("failed to call FilterUsers method: %v", err)
+  }
+
   protoUsers := exportUserModel(users)
 
-  for i, user := range protoUsers {
-    log.Fatal("User: %v Body: %v\n", i, user)
+  protosAsBytes, err := json.Marshal(protoUsers)
+  if err != nil {
+    return nil, err
+  }
+
+  messageProto := &logMessage{
+    Message: protosAsBytes,
+    Process: "FilterUsers:Proto Users",
+  }
+
+  messageProtoAsBytes, err := json.Marshal(messageProto)
+  if err != nil {
+    return nil, err
+  }
+
+  _, err = http.Post(s.loggerAddress+"/log", "application/json", bytes.NewBuffer(messageProtoAsBytes))
+  if err != nil {
+    log.Fatalf("failed to call FilterUsers method: %v", err)
   }
 
   return &v1.FindResponse{
     Api:    req.Api,
-    Status: "Found Users",
+    Status: "Does it load local code",
     Users:  protoUsers,
   }, nil
 }
@@ -189,4 +229,9 @@ func exportUserModel(users []*User) []*v1.User {
     out = append(out, user)
   }
   return out
+}
+
+type logMessage struct {
+  Message []byte `json:"message"`
+  Process string `json:"process"`
 }

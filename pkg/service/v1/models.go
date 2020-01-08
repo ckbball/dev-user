@@ -24,7 +24,7 @@ type User struct {
   Email      string             `json:"email,omitempty" bson:"email,omitempty"`
   Password   string             `json:"password,omitempty" bson:"password,omitempty"`
   Username   string             `json:"username,omitempty" bson:"username,omitempty"`
-  LastActive int                `json:"lastActive,omitempty" bson:"lastActive,omitempty"`
+  LastActive int                `json:"lastActive,omitempty" bson:"last_active,omitempty"`
   Experience string             `json:"experience,omitempty" bson:"experience,omitempty"`
   Languages  []string           `json:"languages,omitempty" bson:"languages,omitempty"`
 }

@@ -139,6 +139,19 @@ func main() {
   log.Printf("FilterUsers searching for users who know java\n")
   log.Printf("FilterUsers response: Code=%d, Body=%s\n\n", resp.StatusCode, body)
 
+  var users struct {
+    LastActive string `json:"last_active"`
+    Experience string `json:"experience"`
+    Languages  string `json:"languages"`
+    Username   string `json:"username"`
+  }
+  err = json.Unmarshal(bodyBytes, &users)
+  if err != nil {
+    log.Fatalf("failed to unmarshal JSON response of FilterUsers method: %v", err)
+    fmt.Println("error:", err)
+  }
+  log.Printf("users struct: %s\n", users)
+
   /*
      resp, err = http.Post(*address+"/v1/users/search", "application/json", strings.NewReader(fmt.Sprintf(`
        {

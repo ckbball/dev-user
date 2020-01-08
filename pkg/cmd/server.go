@@ -55,6 +55,8 @@ type Config struct {
   LogLevel int
   // LogTimeFormat is print time format for logger e.g. 2006-01-02T15:04:05Z07:00
   LogTimeFormat string
+  // address for process level log server
+  LoggerAddress string
 }
 
 // RunServer runs gRPC server and HTTP gateway
@@ -88,6 +90,7 @@ func RunServer() error {
     cfg.MongoCollection = os.Getenv("MONGO_COLLECTION")
     cfg.LogLevel = os.Getenv("LOG_LEVEL")
     cfg.LogTimeFormat = os.Getenv("LOG_TIME")
+    cfg.LoggerAddress = os.Getenv("PROCESS_LOGGER")
   }
 
   if len(cfg.GRPCPort) == 0 {
@@ -156,7 +159,7 @@ func RunServer() error {
 
   // pass in fields of handler directly to method
   // v1API := v1.NewUserServiceServer(repository, subscriber, publisher)
-  v1API := v1.NewUserServiceServer(repository)
+  v1API := v1.NewUserServiceServer(repository, cfg.LoggerAddress)
 
   // run http gateway
   go func() {
