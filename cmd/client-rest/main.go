@@ -60,7 +60,7 @@ func main() {
   }
   log.Printf("created struct: %s\n", created)
 
-  // Call UpdateUser
+  // Call UpdateUser with correct info
   resp, err = http.Post(*address+"/v1/users/"+created.Id, "application/json", strings.NewReader(fmt.Sprintf(`
     {
       "api":"v1",
@@ -99,4 +99,20 @@ func main() {
     fmt.Println("error:", err)
   }
   log.Printf("updated struct: %s\n", updated)
+
+  // Call DeleteUser
+  req, err := http.NewRequest("DELETE", fmt.Sprintf("%s%s/%s", *address, "/v1/users", created.Id), nil)
+  resp, err = http.DefaultClient.Do(req)
+  if err != nil {
+    log.Fatalf("failed to call Delete method: %v", err)
+  }
+  bodyBytes, err = ioutil.ReadAll(resp.Body)
+  resp.Body.Close()
+  if err != nil {
+    body = fmt.Sprintf("failed read Delete response body: %v", err)
+  } else {
+    body = string(bodyBytes)
+  }
+  log.Printf("Delete response: Code=%d, Body=%s\n\n", resp.StatusCode, body)
+
 }

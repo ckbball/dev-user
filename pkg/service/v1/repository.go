@@ -82,6 +82,8 @@ func (s *UserRepository) GetById(id string) (*User, error) {
 }
 
 func (repository *UserRepository) Create(user *v1.User) (string, error) {
+  // add a duplicate email and a duplicate username check
+
   insertUser := bson.D{
     {"email", user.Email},
     {"password", user.Password},
@@ -107,6 +109,8 @@ func (repository *UserRepository) Create(user *v1.User) (string, error) {
 }
 
 func (repository *UserRepository) Update(user *v1.User, id string) (int64, int64, error) {
+  // add a duplicate email and a duplicate username check
+
   primitiveId, _ := primitive.ObjectIDFromHex(id)
 
   result, err := repository.ds.UpdateOne(context.Background(),
@@ -137,7 +141,7 @@ func (repository *UserRepository) Delete(id string) (int64, error) {
   primitiveId, _ := primitive.ObjectIDFromHex(id)
   filter := bson.D{{"_id", primitiveId}}
 
-  result, err := repository.ds.DeleteOne(context.TODO(), filter)
+  result, err := repository.ds.DeleteOne(context.Background(), filter)
   if err != nil {
     return -1, err
   }

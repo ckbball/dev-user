@@ -129,9 +129,15 @@ func (s *handler) DeleteUser(ctx context.Context, req *v1.DeleteRequest) (*v1.De
     return nil, err
   }
 
+  count, err := s.repo.Delete(req.Id)
+  if err != nil {
+    return nil, err
+  }
+
   return &v1.DeleteResponse{
     Api:    req.Api,
-    Status: "Placeholder for test",
+    Status: "Deleted",
+    Count:  count,
   }, nil
 }
 
@@ -141,9 +147,17 @@ func (s *handler) FilterUsers(ctx context.Context, req *v1.FindRequest) (*v1.Fin
     return nil, err
   }
 
+  users, err := s.repo.FilterUsers(req)
+  if err != nil {
+    return nil, err
+  }
+
+  protoUsers := exportUserModel(users)
+
   return &v1.FindResponse{
     Api:    req.Api,
-    Status: "Placeholder for test",
+    Status: "Found Users",
+    Users:  protoUsers,
   }, nil
 }
 
@@ -157,4 +171,18 @@ func (s *handler) GetById(ctx context.Context, req *v1.FindRequest) (*v1.FindRes
     Api:    req.Api,
     Status: "Placeholder for test",
   }, nil
+}
+
+func exportUserModel(users []*User) []*v1.User {
+  out := []*v1.User
+  for _, element := range users {
+    user := &v1.User{
+      LastActive: element.LastActive,
+      Username: element.Username,
+      Experience: element.Experience,
+      Languages: element.Languages,
+    }
+    out = append(out, user)
+  }
+  return out
 }

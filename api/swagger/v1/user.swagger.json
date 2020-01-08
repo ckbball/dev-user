@@ -231,6 +231,10 @@
         },
         "status": {
           "type": "string"
+        },
+        "count": {
+          "type": "string",
+          "format": "int64"
         }
       }
     },
@@ -303,10 +307,12 @@
           "type": "string"
         },
         "matched": {
-          "type": "string"
+          "type": "string",
+          "format": "int64"
         },
         "modified": {
-          "type": "string"
+          "type": "string",
+          "format": "int64"
         }
       }
     },
