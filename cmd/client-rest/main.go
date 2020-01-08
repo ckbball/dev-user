@@ -26,12 +26,12 @@ func main() {
     {
       "api":"v1",
       "user": {
-        "email": "bobby@gmail.com",
+        "email": "loola@gmail.com",
         "password": "haha",
-        "username": "btotheg",
+        "username": "loolala",
         "last_active": 0,
         "experience": "beginner",
-        "languages": ["golang", "ruby", "javascript"]
+        "languages": ["haskell", "python", "csharp"]
       }
     }
   `, pfx, pfx, pfx)))
@@ -59,60 +59,105 @@ func main() {
     fmt.Println("error:", err)
   }
   log.Printf("created struct: %s\n", created)
+  /*
+     // Call UpdateUser with correct info
+     resp, err = http.Post(*address+"/v1/users/"+created.Id, "application/json", strings.NewReader(fmt.Sprintf(`
+       {
+         "api":"v1",
+         "user": {
+           "email": "loola@gmail.com",
+           "password": "haha",
+           "username": "brewhaha",
+           "last_active": 100,
+           "experience": "senior",
+           "languages": ["haskell", "python", "csharp"]
+         }
+       }
+     `, pfx, pfx, pfx)))
+     if err != nil {
+       log.Fatalf("failed to call UpdateUser method: %v", err)
+     }
+     bodyBytes, err = ioutil.ReadAll(resp.Body)
+     resp.Body.Close()
+     if err != nil {
+       body = fmt.Sprintf("failed read UpdateUser response body: %v", err)
+     } else {
+       body = string(bodyBytes)
+     }
+     log.Printf("UpdateUser response: Code=%d, Body=%s\n\n", resp.StatusCode, body)
 
-  // Call UpdateUser with correct info
-  resp, err = http.Post(*address+"/v1/users/"+created.Id, "application/json", strings.NewReader(fmt.Sprintf(`
-    {
-      "api":"v1",
-      "user": {
-        "email": "bobby@gmail.com",
-        "password": "haha",
-        "username": "bobbyG",
-        "last_active": 100,
-        "experience": "middle",
-        "languages": ["golang", "ruby", "javascript"]
-      }
-    }
-  `, pfx, pfx, pfx)))
+     // parse status of UpdateUser
+     var updated struct {
+       API      string `json:"api"`
+       Status   string `json:"status"`
+       Matched  string `json:"matched"`
+       Modified string `json:"modified"`
+     }
+     err = json.Unmarshal(bodyBytes, &updated)
+     if err != nil {
+       log.Fatalf("failed to unmarshal JSON response of UpdateUser method: %v", err)
+       fmt.Println("error:", err)
+     }
+     log.Printf("updated struct: %s\n", updated)
+     /*
+
+        // Call DeleteUser
+        req, err := http.NewRequest("DELETE", fmt.Sprintf("%s%s/%s", *address, "/v1/users", created.Id), nil)
+        resp, err = http.DefaultClient.Do(req)
+        if err != nil {
+          log.Fatalf("failed to call Delete method: %v", err)
+        }
+        bodyBytes, err = ioutil.ReadAll(resp.Body)
+        resp.Body.Close()
+        if err != nil {
+          body = fmt.Sprintf("failed read Delete response body: %v", err)
+        } else {
+          body = string(bodyBytes)
+        }
+        log.Printf("Delete response: Code=%d, Body=%s\n\n", resp.StatusCode, body)
+  */
+
+  // Call FilterUsers
+  resp, err = http.Post(*address+"/v1/users/search", "application/json", strings.NewReader(fmt.Sprintf(`
+       {
+         "api":"v1",
+         "language": "java",
+         "page": 1,
+         "limit": 20
+       }
+     `, pfx, pfx, pfx)))
   if err != nil {
-    log.Fatalf("failed to call UpdateUser method: %v", err)
+    log.Fatalf("failed to call FilterUsers method: %v", err)
   }
   bodyBytes, err = ioutil.ReadAll(resp.Body)
   resp.Body.Close()
   if err != nil {
-    body = fmt.Sprintf("failed read UpdateUser response body: %v", err)
+    body = fmt.Sprintf("failed read FilterUsers response body: %v", err)
   } else {
     body = string(bodyBytes)
   }
-  log.Printf("UpdateUser response: Code=%d, Body=%s\n\n", resp.StatusCode, body)
-
-  // parse status of UpdateUser
-  var updated struct {
-    API      string `json:"api"`
-    Status   string `json:"status"`
-    Matched  string `json:"matched"`
-    Modified string `json:"modified"`
-  }
-  err = json.Unmarshal(bodyBytes, &updated)
-  if err != nil {
-    log.Fatalf("failed to unmarshal JSON response of UpdateUser method: %v", err)
-    fmt.Println("error:", err)
-  }
-  log.Printf("updated struct: %s\n", updated)
-
-  // Call DeleteUser
-  req, err := http.NewRequest("DELETE", fmt.Sprintf("%s%s/%s", *address, "/v1/users", created.Id), nil)
-  resp, err = http.DefaultClient.Do(req)
-  if err != nil {
-    log.Fatalf("failed to call Delete method: %v", err)
-  }
-  bodyBytes, err = ioutil.ReadAll(resp.Body)
-  resp.Body.Close()
-  if err != nil {
-    body = fmt.Sprintf("failed read Delete response body: %v", err)
-  } else {
-    body = string(bodyBytes)
-  }
-  log.Printf("Delete response: Code=%d, Body=%s\n\n", resp.StatusCode, body)
-
+  log.Printf("FilterUsers searching for users who know java\n")
+  log.Printf("FilterUsers response: Code=%d, Body=%s\n\n", resp.StatusCode, body)
+  /*
+     resp, err = http.Post(*address+"/v1/users/search", "application/json", strings.NewReader(fmt.Sprintf(`
+       {
+         "api":"v1",
+         "experience": "middle",
+         "page": 1,
+         "limit": 20
+       }
+     `, pfx, pfx, pfx)))
+     if err != nil {
+       log.Fatalf("failed to call FilterUsers method: %v", err)
+     }
+     bodyBytes, err = ioutil.ReadAll(resp.Body)
+     resp.Body.Close()
+     if err != nil {
+       body = fmt.Sprintf("failed read FilterUsers response body: %v", err)
+     } else {
+       body = string(bodyBytes)
+     }
+     log.Printf("FilterUsers searching for users with middle experience\n")
+     log.Printf("FilterUsers response: Code=%d, Body=%s\n\n", resp.StatusCode, body)
+  */
 }

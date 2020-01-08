@@ -113,20 +113,22 @@ func (repository *UserRepository) Update(user *v1.User, id string) (int64, int64
 
   primitiveId, _ := primitive.ObjectIDFromHex(id)
 
-  result, err := repository.ds.UpdateOne(context.Background(),
+  insertUser := bson.D{
+    {"email", user.Email},
+    {"password", user.Password},
+    {"username", user.Username},
+    {"last_active", user.LastActive},
+    {"experience", user.Experience},
+    {"languages", user.Languages},
+    // in the future add other fields
+  }
+
+  result, err := repository.ds.UpdateOne(context.TODO(),
     bson.D{
       {"_id", primitiveId},
     },
     bson.D{
-      {"$set", bson.D{
-        {"email", user.Email},
-        {"password", user.Password},
-        {"username", user.Username},
-        {"last_active", user.LastActive},
-        {"experience", user.Experience},
-        {"languages", user.Languages},
-        // in the future add other fields
-      }},
+      {"$set", insertUser},
     },
   )
 
@@ -141,7 +143,7 @@ func (repository *UserRepository) Delete(id string) (int64, error) {
   primitiveId, _ := primitive.ObjectIDFromHex(id)
   filter := bson.D{{"_id", primitiveId}}
 
-  result, err := repository.ds.DeleteOne(context.Background(), filter)
+  result, err := repository.ds.DeleteOne(context.TODO(), filter)
   if err != nil {
     return -1, err
   }

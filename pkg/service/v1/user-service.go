@@ -108,17 +108,17 @@ func (s *handler) UpdateUser(ctx context.Context, req *v1.UpsertRequest) (*v1.Up
        Languages:  req.User.Languages,
      }*/
 
-  match, modified, err := s.repo.Update(req.User, req.Id)
-  if err != nil {
-    return nil, err
-  }
+  /*match, modified, err := s.repo.Update(req.User, req.Id)
+    if err != nil {
+      return nil, err
+    }*/
 
   // return
   return &v1.UpsertResponse{
-    Api:      apiVersion,
-    Status:   "Updated",
-    Matched:  match,
-    Modified: modified,
+    Api:    apiVersion,
+    Status: "test",
+    // Matched:  match,
+    // Modified: modified,
     // maybe in future add more data to response about the added user.
   }, nil
 }
@@ -174,13 +174,13 @@ func (s *handler) GetById(ctx context.Context, req *v1.FindRequest) (*v1.FindRes
 }
 
 func exportUserModel(users []*User) []*v1.User {
-  out := []*v1.User
+  out := []*v1.User{}
   for _, element := range users {
     user := &v1.User{
-      LastActive: element.LastActive,
-      Username: element.Username,
+      LastActive: int32(element.LastActive),
+      Username:   element.Username,
       Experience: element.Experience,
-      Languages: element.Languages,
+      Languages:  element.Languages,
     }
     out = append(out, user)
   }
