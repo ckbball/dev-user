@@ -151,6 +151,8 @@ func (s *handler) FilterUsers(ctx context.Context, req *v1.FindRequest) (*v1.Fin
     return nil, err
   }
 
+  log.Printf("Starting FilterUsers handler\n")
+
   users, err := s.repo.FilterUsers(req)
   if err != nil {
     return nil, err

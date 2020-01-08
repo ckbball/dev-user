@@ -6,6 +6,7 @@ import (
   "flag"
   "fmt"
   "os"
+  "strconv"
 
   // mysql driver
   //"github.com/Shopify/sarama"
@@ -88,7 +89,7 @@ func RunServer() error {
     cfg.MongoAddress = os.Getenv("MONGO_URI")
     cfg.MongoName = os.Getenv("MONGO_NAME")
     cfg.MongoCollection = os.Getenv("MONGO_COLLECTION")
-    cfg.LogLevel = os.Getenv("LOG_LEVEL")
+    cfg.LogLevel, _ = strconv.Atoi(os.Getenv("LOG_LEVEL"))
     cfg.LogTimeFormat = os.Getenv("LOG_TIME")
     cfg.LoggerAddress = os.Getenv("PROCESS_LOGGER")
   }
