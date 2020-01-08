@@ -1,0 +1,114 @@
+syntax = "proto3";
+
+package user;
+
+import "google/api/annotations.proto";
+import "protoc-gen-swagger/options/annotations.proto";
+
+option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
+  info: {
+    title: "user service";
+    version: "1.0";
+    contact: {
+      name: "user service";
+      url: "https://github.com/ckbball/smurfin-user";
+      email: "blah@happy.org";
+    };
+  };
+  schemes: HTTP;
+  schemes: HTTPS;
+  consumes: "application/json";
+  produces: "application/json";
+  responses: {
+    key: "404";
+    value: {
+      description: "Returned when resource doesn't exist";
+      schema: {
+        json_schema: {
+          type: STRING;
+        }
+      }
+    }
+  }
+};
+
+service UserService {
+  rpc CreateUser(UpsertRequest) returns (UpsertResponse) {
+    option (google.api.http) = {
+      post: "/v1/users",
+      body: "*"
+    };
+  }
+
+  rpc UpdateUser(UpsertRequest) returns (UpsertResponse) {
+  option (google.api.http) = {
+      post: "/v1/users/{id}",
+      body: "*"
+    };
+  }
+
+  rpc DeleteUser(DeleteRequest) returns (DeleteResponse) {
+  option (google.api.http) = {
+      delete: "/v1/users/{id}"
+    };
+  }
+
+  rpc GetById(FindRequest) returns (FindResponse) {
+    option (google.api.http) = {
+      get: "/v1/users/{id}"
+    };
+  }
+
+  rpc FilterUsers(FindRequest) returns (FindResponse) {
+    option (google.api.http) = {
+      post: "/v1/users/search",
+      body: "*"
+    };
+  }
+}
+
+message UpsertResponse {
+  string api = 1;
+  string status = 2;
+  string id = 3;
+}
+
+message UpsertRequest {
+  string api = 1;
+  User user = 2;
+  string id = 3;
+}
+
+message FindResponse {
+  string api = 1;
+  repeated User users = 2;
+  string status = 3;
+}
+
+message FindRequest {
+  string api = 1;
+  string id = 2;
+  string language = 3;
+  string experience = 4;
+  int32 page = 5;
+  int32 limit = 6;
+}
+
+message DeleteResponse {
+  string api = 1;
+  string status = 2;
+}
+
+message DeleteRequest {
+  string api = 1;
+  string id = 2;
+}
+
+message User {
+  string email = 1;
+  string password = 2;
+  string username = 3;
+  int32 last_active = 4;
+  string experience = 5;
+  repeated string languages = 6;
+}
