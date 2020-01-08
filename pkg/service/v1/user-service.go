@@ -68,14 +68,14 @@ func (s *handler) CreateUser(ctx context.Context, req *v1.UpsertRequest) (*v1.Up
 
   // add in hashing later
   /*
-    user := &User{
-      Email:      req.User.Email,
-      Password:   req.User.Password,
-      Username:   req.User.Username,
-      LastActive: int(req.User.LastActive),
-      Experience: req.User.Experience,
-      Languages:  req.User.Languages,
-    }*/
+     user := &User{
+       Email:      req.User.Email,
+       Password:   req.User.Password,
+       Username:   req.User.Username,
+       LastActive: int(req.User.LastActive),
+       Experience: req.User.Experience,
+       Languages:  req.User.Languages,
+     }*/
 
   id, err := s.repo.Create(req.User)
   if err != nil {
@@ -99,25 +99,26 @@ func (s *handler) UpdateUser(ctx context.Context, req *v1.UpsertRequest) (*v1.Up
 
   // add in hashing later
   /*
-    user := &User{
-      Email:      req.User.Email,
-      Password:   req.User.Password,
-      Username:   req.User.Username,
-      LastActive: int(req.User.LastActive),
-      Experience: req.User.Experience,
-      Languages:  req.User.Languages,
-    }*/
+     user := &User{
+       Email:      req.User.Email,
+       Password:   req.User.Password,
+       Username:   req.User.Username,
+       LastActive: int(req.User.LastActive),
+       Experience: req.User.Experience,
+       Languages:  req.User.Languages,
+     }*/
 
-  id, err := s.repo.Create(req.User)
+  match, modified, err := s.repo.Update(req.User, req.Id)
   if err != nil {
     return nil, err
   }
 
   // return
   return &v1.UpsertResponse{
-    Api:    apiVersion,
-    Status: "Created",
-    Id:     id,
+    Api:      apiVersion,
+    Status:   "Updated",
+    Matched:  match,
+    Modified: modified,
     // maybe in future add more data to response about the added user.
   }, nil
 }

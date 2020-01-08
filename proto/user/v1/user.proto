@@ -71,6 +71,8 @@ message UpsertResponse {
   string api = 1;
   string status = 2;
   string id = 3;
+  int64 matched = 4;
+  int64 modified = 5;
 }
 
 message UpsertRequest {

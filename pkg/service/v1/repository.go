@@ -13,7 +13,7 @@ import (
 
 type repository interface {
   Create(*v1.User) (string, error)
-  Update(*User, string) (int64, error)
+  Update(*v1.User, string) (int64, int64, error)
   Delete(string) (int64, error)
   GetById(string) (*User, error)
   FilterUsers(*v1.FindRequest) ([]*User, error)
@@ -106,14 +106,31 @@ func (repository *UserRepository) Create(user *v1.User) (string, error) {
 
 }
 
-func (repository *UserRepository) Update(user *User, id string) (int64, error) {
+func (repository *UserRepository) Update(user *v1.User, id string) (int64, int64, error) {
   primitiveId, _ := primitive.ObjectIDFromHex(id)
-  filter := bson.D{{"_id", primitiveId}}
-  update := bson.D{{"$set", bson.D{{"user", user}}}}
 
-  result, err := repository.ds.UpdateOne(context.TODO(), filter, update)
+  result, err := repository.ds.UpdateOne(context.Background(),
+    bson.D{
+      {"_id", primitiveId},
+    },
+    bson.D{
+      {"$set", bson.D{
+        {"email", user.Email},
+        {"password", user.Password},
+        {"username", user.Username},
+        {"last_active", user.LastActive},
+        {"experience", user.Experience},
+        {"languages", user.Languages},
+        // in the future add other fields
+      }},
+    },
+  )
 
-  return result.MatchedCount, err
+  if err != nil {
+    return -1, -1, err
+  }
+
+  return result.MatchedCount, result.ModifiedCount, nil
 }
 
 func (repository *UserRepository) Delete(id string) (int64, error) {
