@@ -5,7 +5,7 @@
     "version": "1.0",
     "contact": {
       "name": "user service",
-      "url": "https://github.com/ckbball/smurfin-user",
+      "url": "https://github.com/ckbball/dev-user",
       "email": "blah@happy.org"
     }
   },
@@ -277,6 +277,9 @@
         },
         "status": {
           "type": "string"
+        },
+        "user": {
+          "$ref": "#/definitions/userUser"
         }
       }
     },

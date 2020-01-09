@@ -11,7 +11,7 @@ option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
     version: "1.0";
     contact: {
       name: "user service";
-      url: "https://github.com/ckbball/smurfin-user";
+      url: "https://github.com/ckbball/dev-user";
       email: "blah@happy.org";
     };
   };
@@ -85,6 +85,7 @@ message FindResponse {
   string api = 1;
   repeated User users = 2;
   string status = 3;
+  User user = 4;
 }
 
 message FindRequest {

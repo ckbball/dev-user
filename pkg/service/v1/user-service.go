@@ -95,28 +95,19 @@ func (s *handler) UpdateUser(ctx context.Context, req *v1.UpsertRequest) (*v1.Up
     return nil, err
   }
 
-  // add in hashing later
-  /*
-     user := &User{
-       Email:      req.User.Email,
-       Password:   req.User.Password,
-       Username:   req.User.Username,
-       LastActive: int(req.User.LastActive),
-       Experience: req.User.Experience,
-       Languages:  req.User.Languages,
-     }*/
+  // add in password hashing later
 
-  /*match, modified, err := s.repo.Update(req.User, req.Id)
-    if err != nil {
-      return nil, err
-    }*/
+  match, modified, err := s.repo.Update(req.User, req.Id)
+  if err != nil {
+    return nil, err
+  }
 
   // return
   return &v1.UpsertResponse{
-    Api:    apiVersion,
-    Status: "test",
-    // Matched:  match,
-    // Modified: modified,
+    Api:      apiVersion,
+    Status:   "test",
+    Matched:  match,
+    Modified: modified,
     // maybe in future add more data to response about the added user.
   }, nil
 }
@@ -150,9 +141,7 @@ func (s *handler) FilterUsers(ctx context.Context, req *v1.FindRequest) (*v1.Fin
     return nil, err
   }
 
-  // os.Stderr.WriteString("Checking users from repo call: %v\n", users)
-
-  protoUsers := exportUserModel(users)
+  protoUsers := exportUserModels(users)
 
   return &v1.FindResponse{
     Api:    req.Api,
@@ -167,13 +156,26 @@ func (s *handler) GetById(ctx context.Context, req *v1.FindRequest) (*v1.FindRes
     return nil, err
   }
 
+  user, err := s.repo.GetById(req.Id)
+  if err != nil {
+    return nil, err
+  }
+
+  exportedUser := &v1.User{
+    LastActive: int32(user.LastActive),
+    Username:   user.Username,
+    Experience: user.Experience,
+    Languages:  user.Languages,
+  }
+
   return &v1.FindResponse{
     Api:    req.Api,
-    Status: "Placeholder for test",
+    Status: "Found User",
+    User:   exportedUser,
   }, nil
 }
 
-func exportUserModel(users []*User) []*v1.User {
+func exportUserModels(users []*User) []*v1.User {
   out := []*v1.User{}
   for _, element := range users {
     user := &v1.User{

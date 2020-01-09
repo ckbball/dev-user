@@ -59,9 +59,9 @@ func main() {
     fmt.Println("error:", err)
   }
   log.Printf("created struct: %s\n", created)
-  /*
-     // Call UpdateUser with correct info
-     resp, err = http.Post(*address+"/v1/users/"+created.Id, "application/json", strings.NewReader(fmt.Sprintf(`
+
+  // Call UpdateUser with correct info
+  resp, err = http.Post(*address+"/v1/users/"+created.Id, "application/json", strings.NewReader(fmt.Sprintf(`
        {
          "api":"v1",
          "user": {
@@ -74,48 +74,31 @@ func main() {
          }
        }
      `, pfx, pfx, pfx)))
-     if err != nil {
-       log.Fatalf("failed to call UpdateUser method: %v", err)
-     }
-     bodyBytes, err = ioutil.ReadAll(resp.Body)
-     resp.Body.Close()
-     if err != nil {
-       body = fmt.Sprintf("failed read UpdateUser response body: %v", err)
-     } else {
-       body = string(bodyBytes)
-     }
-     log.Printf("UpdateUser response: Code=%d, Body=%s\n\n", resp.StatusCode, body)
+  if err != nil {
+    log.Fatalf("failed to call UpdateUser method: %v", err)
+  }
+  bodyBytes, err = ioutil.ReadAll(resp.Body)
+  resp.Body.Close()
+  if err != nil {
+    body = fmt.Sprintf("failed read UpdateUser response body: %v", err)
+  } else {
+    body = string(bodyBytes)
+  }
+  log.Printf("UpdateUser response: Code=%d, Body=%s\n\n", resp.StatusCode, body)
 
-     // parse status of UpdateUser
-     var updated struct {
-       API      string `json:"api"`
-       Status   string `json:"status"`
-       Matched  string `json:"matched"`
-       Modified string `json:"modified"`
-     }
-     err = json.Unmarshal(bodyBytes, &updated)
-     if err != nil {
-       log.Fatalf("failed to unmarshal JSON response of UpdateUser method: %v", err)
-       fmt.Println("error:", err)
-     }
-     log.Printf("updated struct: %s\n", updated)
-     /*
-
-        // Call DeleteUser
-        req, err := http.NewRequest("DELETE", fmt.Sprintf("%s%s/%s", *address, "/v1/users", created.Id), nil)
-        resp, err = http.DefaultClient.Do(req)
-        if err != nil {
-          log.Fatalf("failed to call Delete method: %v", err)
-        }
-        bodyBytes, err = ioutil.ReadAll(resp.Body)
-        resp.Body.Close()
-        if err != nil {
-          body = fmt.Sprintf("failed read Delete response body: %v", err)
-        } else {
-          body = string(bodyBytes)
-        }
-        log.Printf("Delete response: Code=%d, Body=%s\n\n", resp.StatusCode, body)
-  */
+  // parse status of UpdateUser
+  var updated struct {
+    API      string `json:"api"`
+    Status   string `json:"status"`
+    Matched  string `json:"matched"`
+    Modified string `json:"modified"`
+  }
+  err = json.Unmarshal(bodyBytes, &updated)
+  if err != nil {
+    log.Fatalf("failed to unmarshal JSON response of UpdateUser method: %v", err)
+    fmt.Println("error:", err)
+  }
+  log.Printf("updated struct: %s\n", updated)
 
   // Call FilterUsers
   resp, err = http.Post(*address+"/v1/search", "application/json", strings.NewReader(fmt.Sprintf(`
@@ -151,7 +134,6 @@ func main() {
     log.Fatalf("failed to unmarshal JSON response of FilterUsers method: %v", err)
     fmt.Println("error:", err)
   }
-  log.Printf("users struct: %s\n", users)
 
   /*
      resp, err = http.Post(*address+"/v1/users/search", "application/json", strings.NewReader(fmt.Sprintf(`
@@ -176,6 +158,7 @@ func main() {
      log.Printf("FilterUsers response: Code=%d, Body=%s\n\n", resp.StatusCode, body)
   */
 
+  // Call GetById
   req, err := http.NewRequest("GET", fmt.Sprintf("%s%s/%s", *address, "/v1/users", created.Id), nil)
   resp, err = http.DefaultClient.Do(req)
   if err != nil {
@@ -189,4 +172,19 @@ func main() {
     body = string(bodyBytes)
   }
   log.Printf("GetById response: Code=%d, Body=%s\n\n", resp.StatusCode, body)
+
+  // Call DeleteUser
+  req, err = http.NewRequest("DELETE", fmt.Sprintf("%s%s/%s", *address, "/v1/users", created.Id), nil)
+  resp, err = http.DefaultClient.Do(req)
+  if err != nil {
+    log.Fatalf("failed to call Delete method: %v", err)
+  }
+  bodyBytes, err = ioutil.ReadAll(resp.Body)
+  resp.Body.Close()
+  if err != nil {
+    body = fmt.Sprintf("failed read Delete response body: %v", err)
+  } else {
+    body = string(bodyBytes)
+  }
+  log.Printf("Delete response: Code=%d, Body=%s\n\n", resp.StatusCode, body)
 }
