@@ -152,54 +152,14 @@ func (s *handler) FilterUsers(ctx context.Context, req *v1.FindRequest) (*v1.Fin
     return nil, err
   }
 
-  os.Stderr.WriteString("Checking FilterUsers zap.Logger access")
-
   users, err := s.repo.FilterUsers(req)
   if err != nil {
     return nil, err
   }
 
-  usersAsBytes, err := json.Marshal(users)
-  if err != nil {
-    return nil, err
-  }
-
-  message := &logMessage{
-    Message: usersAsBytes,
-    Process: "FilterUsers:User Model",
-  }
-
-  messageAsBytes, err := json.Marshal(message)
-  if err != nil {
-    return nil, err
-  }
-
-  _, err = http.Post(s.loggerAddress+"/log", "application/json", bytes.NewBuffer(messageAsBytes))
-  if err != nil {
-    log.Fatalf("failed to call FilterUsers method: %v", err)
-  }
+  os.Stderr.WriteString("Checking users from repo call: %v\n", users)
 
   protoUsers := exportUserModel(users)
-
-  protosAsBytes, err := json.Marshal(protoUsers)
-  if err != nil {
-    return nil, err
-  }
-
-  messageProto := &logMessage{
-    Message: protosAsBytes,
-    Process: "FilterUsers:Proto Users",
-  }
-
-  messageProtoAsBytes, err := json.Marshal(messageProto)
-  if err != nil {
-    return nil, err
-  }
-
-  _, err = http.Post(s.loggerAddress+"/log", "application/json", bytes.NewBuffer(messageProtoAsBytes))
-  if err != nil {
-    log.Fatalf("failed to call FilterUsers method: %v", err)
-  }
 
   return &v1.FindResponse{
     Api:    req.Api,
