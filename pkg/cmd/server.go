@@ -148,7 +148,6 @@ func RunServer() error {
   // SET up mongo client
   // retry := false
   clientOptions := options.Client().ApplyURI(cfg.MongoAddress)
-  // clientOptions := options.MergeClientOptions(&options.ClientOptions{RetryWrites: &retry, RetryReads: &retry}).ApplyURI(cfg.MongoAddress)
   client, err := mongo.Connect(context.TODO(), clientOptions)
   if err != nil {
     return err

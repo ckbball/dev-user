@@ -8,6 +8,7 @@ import (
   //"strconv"
   "bytes"
   "net/http"
+  "os"
   //"time"
 
   //"github.com/golang/protobuf/ptypes"
@@ -151,7 +152,7 @@ func (s *handler) FilterUsers(ctx context.Context, req *v1.FindRequest) (*v1.Fin
     return nil, err
   }
 
-  log.Printf("Starting FilterUsers handler\n")
+  os.Stderr.WriteString("Checking FilterUsers zap.Logger access")
 
   users, err := s.repo.FilterUsers(req)
   if err != nil {
