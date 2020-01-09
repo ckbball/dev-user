@@ -3,16 +3,10 @@ package v1
 import (
   "context"
   //"errors"
-  //"fmt"
-  "log"
   //"strconv"
-  "bytes"
-  "net/http"
-  "os"
   //"time"
 
   //"github.com/golang/protobuf/ptypes"
-  "encoding/json"
   //"github.com/ThreeDotsLabs/watermill"
   //"github.com/ThreeDotsLabs/watermill/message"
   // "github.com/go-redis/cache/v7"
@@ -21,7 +15,6 @@ import (
   "google.golang.org/grpc/status"
 
   // messageProto "github.com/ckbball/dev-message/pkg/api/v1"
-
   v1 "github.com/ckbball/dev-user/pkg/api/v1"
 )
 
@@ -157,7 +150,7 @@ func (s *handler) FilterUsers(ctx context.Context, req *v1.FindRequest) (*v1.Fin
     return nil, err
   }
 
-  os.Stderr.WriteString("Checking users from repo call: %v\n", users)
+  // os.Stderr.WriteString("Checking users from repo call: %v\n", users)
 
   protoUsers := exportUserModel(users)
 

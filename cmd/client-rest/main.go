@@ -145,7 +145,8 @@ func main() {
     Languages  string `json:"languages"`
     Username   string `json:"username"`
   }
-  err = json.Unmarshal(bodyBytes, &users)
+  bobby := users
+  err = json.Unmarshal(bodyBytes, &bobby)
   if err != nil {
     log.Fatalf("failed to unmarshal JSON response of FilterUsers method: %v", err)
     fmt.Println("error:", err)

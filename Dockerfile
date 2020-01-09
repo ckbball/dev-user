@@ -14,9 +14,7 @@ RUN go mod download
 
 COPY . .
 
-RUN go list -m -u all
-
-RUN cd cmd/server && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o dev-user . && ls && pwd
+RUN cd cmd/server && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o dev-user . 
 
 FROM alpine:latest
 
