@@ -121,7 +121,7 @@ func main() {
   resp, err = http.Post(*address+"/v1/search", "application/json", strings.NewReader(fmt.Sprintf(`
           {
             "api":"v1",
-            "language": "java",
+            "experience": "beginner",
             "page": 1,
             "limit": 20
           }

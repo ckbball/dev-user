@@ -3,13 +3,12 @@ package v1
 import (
   "context"
   //"errors"
-  "fmt"
+
   v1 "github.com/ckbball/dev-user/pkg/api/v1"
   "go.mongodb.org/mongo-driver/bson"
   "go.mongodb.org/mongo-driver/bson/primitive"
   "go.mongodb.org/mongo-driver/mongo"
   "go.mongodb.org/mongo-driver/mongo/options"
-  "os"
   //"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
@@ -114,15 +113,6 @@ func (repository *UserRepository) Delete(id string) (int64, error) {
 
 func (s *UserRepository) FilterUsers(req *v1.FindRequest) ([]*User, error) {
 
-  // fieldMap := map[string]string{"language": req.Language, "experience": req.Experience}
-
-  // make bson filter object here by calling makeFilter()
-  // filter := s.makeFilter(fieldMap)
-  /*
-     bson.D{{"experience",
-         "beginner"}},
-  */
-
   findOptions := options.Find()
   findOptions.SetLimit(int64(req.Limit))
   findOptions.SetSort(bson.D{{"_id", -1}})
@@ -131,14 +121,10 @@ func (s *UserRepository) FilterUsers(req *v1.FindRequest) ([]*User, error) {
   var users []*User
   cur, err := s.ds.Find(context.TODO(),
     bson.D{
-      {"$or",
-        bson.A{
-          bson.D{{"experience", "beginner"}},
-          bson.D{{"languages", bson.D{{"$in", bson.A{"java"}}}}}, // this line not working
-        },
-      },
+      {"experience", req.Experience},
     },
     findOptions)
+
   if err != nil {
     return nil, err
   }
@@ -151,7 +137,6 @@ func (s *UserRepository) FilterUsers(req *v1.FindRequest) ([]*User, error) {
       return nil, err
     }
 
-    fmt.Fprintf(os.Stderr, "user from repo: %v\n", elem)
     users = append(users, elem)
   }
 
@@ -160,46 +145,6 @@ func (s *UserRepository) FilterUsers(req *v1.FindRequest) ([]*User, error) {
   }
 
   return users, nil
-}
-
-func (s *UserRepository) makeFilter(fieldMap map[string]string) *bson.D {
-  output := bson.D{}
-
-  for key, value := range fieldMap {
-    if key == "id" {
-      filter := bson.E{
-        Key: "_id",
-        Value: &bson.A{
-          "$eq",
-          value,
-        },
-      }
-      output = append(output, filter)
-    }
-
-    if key == "language" {
-      filter := bson.E{
-        Key: "Languages",
-        Value: &bson.A{
-          "$in",
-          value,
-        },
-      }
-      output = append(output, filter)
-    }
-
-    if key == "experience" {
-      filter := bson.E{
-        Key: "Experience",
-        Value: &bson.A{
-          "$eq",
-          value,
-        },
-      }
-      output = append(output, filter)
-    }
-  }
-  return &output
 }
 
 /*
