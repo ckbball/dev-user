@@ -21,7 +21,7 @@ func main() {
 
   var body string
 
-  // Call CreateUser
+  // Call CreateUser------------------------------------------------------------------------------------------------------------------
   resp, err := http.Post(*address+"/v1/users", "application/json", strings.NewReader(fmt.Sprintf(`
     {
       "api":"v1",
@@ -60,7 +60,48 @@ func main() {
   }
   log.Printf("created struct: %s\n", created)
 
-  // Call UpdateUser with correct info
+  // ------------------------------------------------------------------------------------------------------------------LOGIN
+  req, err = http.NewRequest("POST", fmt.Sprintf("%s%s", *address, "/v1/login"), strings.NewReader(fmt.Sprintf(`
+       {
+         "api":"v1",
+          "email": "loola@gmail.com",
+          "password": "haha",
+       }
+     `, pfx, pfx, pfx)))
+  if err != nil {
+    log.Fatalf("failed to call Login method: %v", err)
+  }
+  /*
+    req.Header["Authorization"][0] = loggedToken
+  */
+  resp, err = http.DefaultClient.Do(req)
+  if err != nil {
+    log.Fatalf("failed to call Login method: %v", err)
+  }
+  bodyBytes, err = ioutil.ReadAll(resp.Body)
+  resp.Body.Close()
+  if err != nil {
+    body = fmt.Sprintf("failed read Login response body: %v", err)
+  } else {
+    body = string(bodyBytes)
+  }
+  log.Printf("Login response: Code=%d, Body=%s\n\n", resp.StatusCode, body)
+
+  var logged struct {
+    API    string `json:"api"`
+    Status string `json:"status"`
+    Token  string `json:"token"`
+  }
+  err = json.Unmarshal(bodyBytes, &updated)
+  if err != nil {
+    log.Fatalf("failed to unmarshal JSON response of UpdateUser method: %v", err)
+    fmt.Println("error:", err)
+  }
+  log.Printf("updated struct: %s\n", updated)
+
+  loggedToken := updated.Token
+
+  // Call UpdateUser with correct info------------------------------------------------------------------------------------------------------------------
   resp, err = http.Post(*address+"/v1/users/"+created.Id, "application/json", strings.NewReader(fmt.Sprintf(`
        {
          "api":"v1",
@@ -77,6 +118,9 @@ func main() {
   if err != nil {
     log.Fatalf("failed to call UpdateUser method: %v", err)
   }
+  /*
+    req.Header["Authorization"][0] = loggedToken
+  */
   bodyBytes, err = ioutil.ReadAll(resp.Body)
   resp.Body.Close()
   if err != nil {
@@ -100,7 +144,7 @@ func main() {
   }
   log.Printf("updated struct: %s\n", updated)
 
-  // Call FilterUsers
+  // Call FilterUsers------------------------------------------------------------------------------------------------------------------
   resp, err = http.Post(*address+"/v1/search", "application/json", strings.NewReader(fmt.Sprintf(`
           {
             "api":"v1",
@@ -135,31 +179,8 @@ func main() {
     fmt.Println("error:", err)
   }
 
-  /*
-     resp, err = http.Post(*address+"/v1/users/search", "application/json", strings.NewReader(fmt.Sprintf(`
-       {
-         "api":"v1",
-         "experience": "middle",
-         "page": 1,
-         "limit": 20
-       }
-     `, pfx, pfx, pfx)))
-     if err != nil {
-       log.Fatalf("failed to call FilterUsers method: %v", err)
-     }
-     bodyBytes, err = ioutil.ReadAll(resp.Body)
-     resp.Body.Close()
-     if err != nil {
-       body = fmt.Sprintf("failed read FilterUsers response body: %v", err)
-     } else {
-       body = string(bodyBytes)
-     }
-     log.Printf("FilterUsers searching for users with middle experience\n")
-     log.Printf("FilterUsers response: Code=%d, Body=%s\n\n", resp.StatusCode, body)
-  */
-
-  // Call GetById
-  req, err := http.NewRequest("GET", fmt.Sprintf("%s%s/%s", *address, "/v1/users", created.Id), nil)
+  // Call GetById------------------------------------------------------------------------------------------------------------------
+  req, err = http.NewRequest("GET", fmt.Sprintf("%s%s/%s", *address, "/v1/users", created.Id), nil)
   resp, err = http.DefaultClient.Do(req)
   if err != nil {
     log.Fatalf("failed to call GetById method: %v", err)
@@ -173,7 +194,7 @@ func main() {
   }
   log.Printf("GetById response: Code=%d, Body=%s\n\n", resp.StatusCode, body)
 
-  // Call DeleteUser
+  // Call DeleteUser------------------------------------------------------------------------------------------------------------------
   req, err = http.NewRequest("DELETE", fmt.Sprintf("%s%s/%s", *address, "/v1/users", created.Id), nil)
   resp, err = http.DefaultClient.Do(req)
   if err != nil {
