@@ -35,7 +35,14 @@ option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
 service UserService {
   rpc CreateUser(UpsertRequest) returns (UpsertResponse) {
     option (google.api.http) = {
-      post: "/v1/users",
+      post: "/v1/signup",
+      body: "*"
+    };
+  }
+
+  rpc Login(UpsertRequest) returns (UpsertResponse) {
+    option (google.api.http) = {
+      post: "/v1/login",
       body: "*"
     };
   }
@@ -71,6 +78,8 @@ service UserService {
       body: "*"
     };
   }
+
+  rpc ValidateToken(ValidateRequest) returns (ValidateResponse) {}
 }
 
 message UpsertResponse {
@@ -79,12 +88,15 @@ message UpsertResponse {
   string id = 3;
   int64 matched = 4;
   int64 modified = 5;
+  string token = 6;
 }
 
 message UpsertRequest {
   string api = 1;
   User user = 2;
   string id = 3;
+  string email = 4;
+  string password = 5;
 }
 
 message FindResponse {
@@ -115,6 +127,15 @@ message DeleteRequest {
   string id = 2;
 }
 
+message ValidateResponse {
+  bool valid = 1;
+  string user_id = 2;
+}
+
+message ValidateRequest {
+  string token = 1;
+}
+
 message User {
   string email = 1;
   string password = 2;
@@ -122,4 +143,5 @@ message User {
   int32 last_active = 4;
   string experience = 5;
   repeated string languages = 6;
+  string id = 7;
 }

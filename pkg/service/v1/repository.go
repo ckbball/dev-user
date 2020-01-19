@@ -17,6 +17,7 @@ type repository interface {
   Update(*v1.User, string) (int64, int64, error)
   Delete(string) (int64, error)
   GetById(string) (*User, error)
+  GetByEmail(string) (*User, error)
   FilterUsers(*v1.FindRequest) ([]*User, error)
 }
 
@@ -35,6 +36,17 @@ func (s *UserRepository) GetById(id string) (*User, error) {
 
   var user User
   err := s.ds.FindOne(context.TODO(), User{Id: primitiveId}).Decode(&user)
+  if err != nil {
+    return nil, err
+  }
+
+  return &user, nil
+}
+
+func (s *UserRepository) GetByEmail(email string) (*User, error) {
+
+  var user User
+  err := s.ds.FindOne(context.TODO(), User{Email: email}).Decode(&user)
   if err != nil {
     return nil, err
   }

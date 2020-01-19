@@ -88,6 +88,38 @@ func (s *handler) CreateUser(ctx context.Context, req *v1.UpsertRequest) (*v1.Up
   }, nil
 }
 
+func (s *handler) Login(ctx context.Context, req *v1.UpsertRequest) (*v1.UpsertResponse, error) {
+  // check api version
+  if err := s.checkAPI(req.Api); err != nil {
+    return nil, err
+  }
+
+  // get user from email
+  user, err := s.repo.GetByEmail(req.Email)
+  if err != nil {
+    return nil, err
+  }
+
+  // Compare given password to stored hash
+  if err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
+    return nil, err
+  }
+
+  // generate new token
+  token, err := s.tokenService.Encode(user)
+  if err != nil {
+    return nil, err
+  }
+
+  // return
+  return &v1.UpsertResponse{
+    Api:    apiVersion,
+    Status: "Created",
+    Token:  token,
+    // maybe in future add more data to response about the added user.
+  }, nil
+}
+
 func (s *handler) UpdateUser(ctx context.Context, req *v1.UpsertRequest) (*v1.UpsertResponse, error) {
   // check api version
   if err := s.checkAPI(req.Api); err != nil {
@@ -210,6 +242,24 @@ func (s *handler) GetById(ctx context.Context, req *v1.FindRequest) (*v1.FindRes
     Api:    req.Api,
     Status: "Found User",
     User:   exportedUser,
+  }, nil
+}
+
+func (s *handler) ValidateToken(ctx context.Context, req *v1.ValidateRequest) (*v1.ValidateResponse, error) {
+  // Decode token
+  claims, err := s.tokenService.Decode(req.Token)
+
+  if err != nil {
+    return nil, err
+  }
+
+  if claims.User.Id == "" {
+    return nil, errors.New("invalid User")
+  }
+
+  return &v1.ValidateResponse{
+    Valid:  true,
+    UserId: claims.User.Id,
   }, nil
 }
 
