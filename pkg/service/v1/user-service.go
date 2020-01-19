@@ -2,17 +2,19 @@ package v1
 
 import (
   "context"
-  //"errors"
+  "errors"
   //"strconv"
   //"time"
-  "bcrypt"
+  "fmt"
 
   //"github.com/golang/protobuf/ptypes"
   //"github.com/ThreeDotsLabs/watermill"
   //"github.com/ThreeDotsLabs/watermill/message"
   // "github.com/go-redis/cache/v7"
   //"google.golang.org/grpc"
+  "golang.org/x/crypto/bcrypt"
   "google.golang.org/grpc/codes"
+  "google.golang.org/grpc/metadata"
   "google.golang.org/grpc/status"
 
   // messageProto "github.com/ckbball/dev-message/pkg/api/v1"
@@ -105,8 +107,16 @@ func (s *handler) Login(ctx context.Context, req *v1.UpsertRequest) (*v1.UpsertR
     return nil, err
   }
 
+  intId := user.Id.Hex()
+
+  userModel := &v1.User{
+    Id:       intId, //
+    Email:    user.Email,
+    Password: user.Password,
+  }
+
   // generate new token
-  token, err := s.tokenService.Encode(user)
+  token, err := s.tokenService.Encode(userModel)
   if err != nil {
     return nil, err
   }
@@ -128,9 +138,10 @@ func (s *handler) UpdateUser(ctx context.Context, req *v1.UpsertRequest) (*v1.Up
 
   // check user is updating their own profile.
   // grab http headers from metadata
-  md, ok := metadata.FromIncomingContext(ctx)
+  md, _ := metadata.FromIncomingContext(ctx)
   // grab user token from metadata
-  reqToken := md["Authorization"]
+  values := md.Get("Authorization")
+  reqToken := values[0]
   // validate the token user and request user
   claims, err := s.tokenService.Decode(reqToken)
   if err != nil {
@@ -174,9 +185,10 @@ func (s *handler) DeleteUser(ctx context.Context, req *v1.DeleteRequest) (*v1.De
 
   // check user is updating their own profile.
   // grab http headers from metadata
-  md, ok := metadata.FromIncomingContext(ctx)
+  md, _ := metadata.FromIncomingContext(ctx)
   // grab user token from metadata
-  reqToken := md["Authorization"]
+  values := md.Get("Authorization")
+  reqToken := values[0]
   // validate the token user and request user
   claims, err := s.tokenService.Decode(reqToken)
   if err != nil {

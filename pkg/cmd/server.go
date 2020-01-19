@@ -107,29 +107,6 @@ func RunServer() error {
     return fmt.Errorf("failed to initialize logger: %v", err)
   }
 
-  // add MySQL driver specific parameter to parse date/time
-  // Drop it for another database
-  // param := "parseTime=true"
-
-  // for non localhost db %s:%s@tcp(%s)/%s?%s
-  // currently set for localhost
-  /*
-     dsn := fmt.Sprintf("%s:%s@/%s?%s",
-       cfg.DatastoreDBUser,
-       cfg.DatastoreDBPassword,
-       // cfg.DatastoreDBHost,
-       cfg.DatastoreDBSchema,
-       param)
-     db, err := sql.Open("mysql", dsn)
-     if err != nil {
-       return fmt.Errorf("failed to open database: %v", err)
-     }
-     defer db.Close()
-     // create repository
-     repository := &v1.JournalRepository{
-       Db: db,
-     }
-  */
   // init pool of connections to redis cluster
   // redisPool := initRedis(cfg.RedisAddress)
 
@@ -157,9 +134,12 @@ func RunServer() error {
   // create repository
   repository := v1.NewUserRepository(collection)
 
+  // create auth service
+  tokenService := v1.NewTokenService()
+
   // pass in fields of handler directly to method
   // v1API := v1.NewUserServiceServer(repository, subscriber, publisher)
-  v1API := v1.NewUserServiceServer(repository, cfg.LoggerAddress)
+  v1API := v1.NewUserServiceServer(repository, cfg.LoggerAddress, tokenService)
 
   // run http gateway
   go func() {

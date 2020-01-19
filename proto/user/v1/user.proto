@@ -66,12 +66,6 @@ service UserService {
     };
   }
 
-  rpc GetByEmail(FindRequest) returns (FindResponse) {
-    option (google.api.http) = {
-      get: "/v1/users/{id}/{email}"
-    };
-  }
-
   rpc FilterUsers(FindRequest) returns (FindResponse) {
     option (google.api.http) = {
       post: "/v1/search",

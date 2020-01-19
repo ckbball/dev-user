@@ -1,4 +1,4 @@
-package main
+package v1
 
 import (
   "time"
@@ -17,9 +17,7 @@ var (
 )
 
 func NewTokenService() *TokenService {
-  return &TokenService{
-    ds: client,
-  }
+  return &TokenService{}
 }
 
 // CustomClaims is our custom metadata, which will be hashed
