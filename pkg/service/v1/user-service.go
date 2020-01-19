@@ -140,6 +140,22 @@ func (s *handler) DeleteUser(ctx context.Context, req *v1.DeleteRequest) (*v1.De
     return nil, err
   }
 
+  // check user is updating their own profile.
+  // grab http headers from metadata
+  md, ok := metadata.FromIncomingContext(ctx)
+  // grab user token from metadata
+  reqToken := md["Authorization"]
+  // validate the token user and request user
+  claims, err := s.tokenService.Decode(reqToken)
+  if err != nil {
+    return nil, err
+  }
+
+  // if token User != req User or there is no user id in claims return error
+  if claims.User.Id != req.Id || claims.User.Id == "" {
+    return nil, errors.New("Invalid Token")
+  }
+
   count, err := s.repo.Delete(req.Id)
   if err != nil {
     return nil, err
