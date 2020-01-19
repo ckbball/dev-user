@@ -5,6 +5,7 @@ import (
   //"errors"
   //"strconv"
   //"time"
+  "bcrypt"
 
   //"github.com/golang/protobuf/ptypes"
   //"github.com/ThreeDotsLabs/watermill"
@@ -34,15 +35,17 @@ FilterUsers(context.Context, *FindRequest) (*FindResponse, error)
 type handler struct {
   repo          repository
   loggerAddress string
+  tokenService  Authable
   //subscriber message.Subscriber
   //publisher  message.Publisher
 }
 
-func NewUserServiceServer(repo repository, loggerAddress string) *handler {
+func NewUserServiceServer(repo repository, loggerAddress string, tokenService Authable) *handler {
   //subscriber message.Subscriber, publisher message.Publisher) *handler {
   return &handler{
     repo:          repo,
     loggerAddress: loggerAddress,
+    tokenService:  tokenService,
     //subscriber: subscriber,
     //publisher:  publisher,
   }
@@ -64,16 +67,9 @@ func (s *handler) CreateUser(ctx context.Context, req *v1.UpsertRequest) (*v1.Up
     return nil, err
   }
 
-  // add in hashing later
-  /*
-     user := &User{
-       Email:      req.User.Email,
-       Password:   req.User.Password,
-       Username:   req.User.Username,
-       LastActive: int(req.User.LastActive),
-       Experience: req.User.Experience,
-       Languages:  req.User.Languages,
-     }*/
+  // generate hash of password
+
+  // set req.User.Password to hash string
 
   id, err := s.repo.Create(req.User)
   if err != nil {
@@ -95,7 +91,30 @@ func (s *handler) UpdateUser(ctx context.Context, req *v1.UpsertRequest) (*v1.Up
     return nil, err
   }
 
+  // check user is updating their own profile.
+  // grab http headers from metadata
+  md, ok := metadata.FromIncomingContext(ctx)
+  // grab user token from metadata
+  reqToken := md["Authorization"]
+  // validate the token user and request user
+  claims, err := s.tokenService.Decode(reqToken)
+  if err != nil {
+    return nil, err
+  }
+
+  // if token User != req User or there is no user id in claims return error
+  if claims.User.Id != req.Id || claims.User.Id == "" {
+    return nil, errors.New("Invalid Token")
+  }
+
   // add in password hashing later
+  if req.User.Password != "" {
+    hashedPass, err := bcrypt.GenerateFromPassword([]byte(req.User.Password), bcrypt.DefaultCost)
+    if err != nil {
+      return nil, errors.New(fmt.Sprintf("error hashing password: %v", err))
+    }
+    req.User.Password = string(hashedPass)
+  }
 
   match, modified, err := s.repo.Update(req.User, req.Id)
   if err != nil {

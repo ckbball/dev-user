@@ -59,6 +59,12 @@ service UserService {
     };
   }
 
+  rpc GetByEmail(FindRequest) returns (FindResponse) {
+    option (google.api.http) = {
+      get: "/v1/users/{id}/{email}"
+    };
+  }
+
   rpc FilterUsers(FindRequest) returns (FindResponse) {
     option (google.api.http) = {
       post: "/v1/search",
@@ -95,6 +101,7 @@ message FindRequest {
   string experience = 4;
   int32 page = 5;
   int32 limit = 6;
+  string email = 7;
 }
 
 message DeleteResponse {
