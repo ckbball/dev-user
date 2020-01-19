@@ -68,8 +68,11 @@ func (s *handler) CreateUser(ctx context.Context, req *v1.UpsertRequest) (*v1.Up
   }
 
   // generate hash of password
-
-  // set req.User.Password to hash string
+  hashedPass, err := bcrypt.GenerateFromPassword([]byte(req.User.Password), bcrypt.DefaultCost)
+  if err != nil {
+    return nil, errors.New(fmt.Sprintf("error hashing password: %v", err))
+  }
+  req.User.Password = string(hashedPass)
 
   id, err := s.repo.Create(req.User)
   if err != nil {
