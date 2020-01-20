@@ -22,7 +22,7 @@ func main() {
   var body string
 
   // Call CreateUser------------------------------------------------------------------------------------------------------------------
-  resp, err := http.Post(*address+"/v1/users", "application/json", strings.NewReader(fmt.Sprintf(`
+  resp, err := http.Post(*address+"/v1/signup", "application/json", strings.NewReader(fmt.Sprintf(`
     {
       "api":"v1",
       "user": {
@@ -72,7 +72,7 @@ func main() {
     log.Fatalf("failed to call Login method: %v", err)
   }
   /*
-    req.Header["Authorization"][0] = loggedToken
+     req.Header["Authorization"][0] = loggedToken
   */
   resp, err = http.DefaultClient.Do(req)
   if err != nil {
@@ -119,7 +119,7 @@ func main() {
     log.Fatalf("failed to call UpdateUser method: %v", err)
   }
   /*
-    req.Header["Authorization"][0] = loggedToken
+     req.Header["Authorization"][0] = loggedToken
   */
   bodyBytes, err = ioutil.ReadAll(resp.Body)
   resp.Body.Close()
