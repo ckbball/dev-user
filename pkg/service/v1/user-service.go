@@ -330,7 +330,9 @@ func (s *handler) ValidateToken(ctx context.Context, req *v1.ValidateRequest) (*
 func exportUserModels(users []*User) []*v1.User {
   out := []*v1.User{}
   for _, element := range users {
+    outId := element.Id.Hex()
     user := &v1.User{
+      Id:         outId,
       LastActive: int32(element.LastActive),
       Username:   element.Username,
       Experience: element.Experience,
@@ -342,7 +344,9 @@ func exportUserModels(users []*User) []*v1.User {
 }
 
 func exportUserModel(user *User) *v1.User {
+  outId := user.Id.Hex()
   out := &v1.User{
+    Id:         outId,
     LastActive: int32(user.LastActive),
     Username:   user.Username,
     Experience: user.Experience,
