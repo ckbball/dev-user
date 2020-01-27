@@ -135,7 +135,7 @@ func (s *handler) Login(ctx context.Context, req *v1.UpsertRequest) (*v1.UpsertR
   }, nil
 }
 
-func (s *handler) GetAuth(ctx context.Context, req *v1.UpsertRequest) (*v1.UpsertResponse, error) {
+func (s *handler) GetAuth(ctx context.Context, req *v1.UpsertRequest) (*v1.AuthResponse, error) {
 
   // check user is updating their own profile.
   // grab http headers from metadata
@@ -156,7 +156,7 @@ func (s *handler) GetAuth(ctx context.Context, req *v1.UpsertRequest) (*v1.Upser
 
   out := exportUserModel(user)
 
-  return &v1.UpsertResponse{
+  return &v1.AuthResponse{
     Api:    apiVersion,
     Status: "test",
     User:   out,
@@ -324,7 +324,7 @@ func exportUserModels(users []*User) []*v1.User {
 }
 
 func exportUserModel(user *User) *v1.User {
-  out := *v1.User{
+  out := &v1.User{
     LastActive: int32(user.LastActive),
     Username:   user.Username,
     Experience: user.Experience,

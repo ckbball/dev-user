@@ -366,6 +366,9 @@
         },
         "user": {
           "$ref": "#/definitions/userUser"
+        },
+        "status": {
+          "type": "string"
         }
       }
     },
