@@ -20,6 +20,102 @@
     "application/json"
   ],
   "paths": {
+    "/v1/auth": {
+      "get": {
+        "operationId": "GetAuth",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/userAuthResponse"
+            }
+          },
+          "404": {
+            "description": "Returned when resource doesn't exist",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "api",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "user.email",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "user.password",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "user.username",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "user.last_active",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "user.experience",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "user.languages",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "user.id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "email",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "password",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "UserService"
+        ]
+      }
+    },
     "/v1/login": {
       "post": {
         "operationId": "Login",
@@ -262,6 +358,17 @@
     }
   },
   "definitions": {
+    "userAuthResponse": {
+      "type": "object",
+      "properties": {
+        "api": {
+          "type": "string"
+        },
+        "user": {
+          "$ref": "#/definitions/userUser"
+        }
+      }
+    },
     "userDeleteResponse": {
       "type": "object",
       "properties": {
