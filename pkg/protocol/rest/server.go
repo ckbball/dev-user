@@ -29,7 +29,7 @@ func RunServer(ctx context.Context, grpcPort, httpPort string) error {
 
   srv := &http.Server{
     Addr:    ":" + httpPort,
-    Handler: mux,
+    Handler: allowCORS(mux), /// HAVE TO CHECK THIS IN THE FUTURE FOR PRODUCTION
   }
 
   // graceful shutdown

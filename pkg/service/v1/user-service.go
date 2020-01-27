@@ -19,6 +19,7 @@ import (
 
   // messageProto "github.com/ckbball/dev-message/pkg/api/v1"
   v1 "github.com/ckbball/dev-user/pkg/api/v1"
+  "github.com/ckbball/dev-user/pkg/logger"
 )
 
 const (
@@ -68,6 +69,10 @@ func (s *handler) CreateUser(ctx context.Context, req *v1.UpsertRequest) (*v1.Up
   if err := s.checkAPI(req.Api); err != nil {
     return nil, err
   }
+
+  logReq := fmt.Sprintf("CreateUser request: %v", req)
+
+  logger.Log.Info(logReq)
 
   // generate hash of password
   hashedPass, err := bcrypt.GenerateFromPassword([]byte(req.User.Password), bcrypt.DefaultCost)
@@ -126,6 +131,35 @@ func (s *handler) Login(ctx context.Context, req *v1.UpsertRequest) (*v1.UpsertR
     Api:    apiVersion,
     Status: "Created",
     Token:  token,
+    // maybe in future add more data to response about the added user.
+  }, nil
+}
+
+func (s *handler) GetAuth(ctx context.Context, req *v1.UpsertRequest) (*v1.UpsertResponse, error) {
+
+  // check user is updating their own profile.
+  // grab http headers from metadata
+  md, _ := metadata.FromIncomingContext(ctx)
+  // grab user token from metadata
+  values := md.Get("Authorization")
+  reqToken := values[0]
+  // validate the token user and request user
+  claims, err := s.tokenService.Decode(reqToken)
+  if err != nil {
+    return nil, err
+  }
+
+  user, err := s.repo.GetById(claims.User.Id)
+  if err != nil {
+    return nil, errors.New("Invalid Token")
+  }
+
+  out := exportUserModel(user)
+
+  return &v1.UpsertResponse{
+    Api:    apiVersion,
+    Status: "test",
+    User:   out,
     // maybe in future add more data to response about the added user.
   }, nil
 }
@@ -285,6 +319,16 @@ func exportUserModels(users []*User) []*v1.User {
       Languages:  element.Languages,
     }
     out = append(out, user)
+  }
+  return out
+}
+
+func exportUserModel(user *User) *v1.User {
+  out := *v1.User{
+    LastActive: int32(user.LastActive),
+    Username:   user.Username,
+    Experience: user.Experience,
+    Languages:  user.Languages,
   }
   return out
 }
