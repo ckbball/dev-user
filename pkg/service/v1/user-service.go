@@ -164,6 +164,24 @@ func (s *handler) GetAuth(ctx context.Context, req *v1.UpsertRequest) (*v1.AuthR
   }, nil
 }
 
+func (s *handler) GetByEmail(ctx context.Context, req *v1.FindRequest) (*v1.FindResponse, error) {
+
+  // fetch user from repo by email
+  user, err := s.repo.GetByEmail(req.Email)
+  if err != nil {
+    return nil, err
+  }
+
+  out := exportUserModel(user)
+
+  return &v1.FindResponse{
+    Api:    apiVersion,
+    Status: "test",
+    User:   out,
+    // maybe in future add more data to response about the added user.
+  }, nil
+}
+
 func (s *handler) UpdateUser(ctx context.Context, req *v1.UpsertRequest) (*v1.UpsertResponse, error) {
   // check api version
   if err := s.checkAPI(req.Api); err != nil {
