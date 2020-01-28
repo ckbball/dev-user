@@ -6,6 +6,7 @@ import (
   //"strconv"
   //"time"
   "fmt"
+  "reflect"
 
   //"github.com/golang/protobuf/ptypes"
   //"github.com/ThreeDotsLabs/watermill"
@@ -101,6 +102,10 @@ func (s *handler) Login(ctx context.Context, req *v1.UpsertRequest) (*v1.UpsertR
     return nil, err
   }
 
+  logReq := fmt.Sprintf("Login request: %v", req)
+
+  logger.Log.Info(logReq)
+
   // get user from email
   user, err := s.repo.GetByEmail(req.Email)
   if err != nil {
@@ -142,7 +147,14 @@ func (s *handler) GetAuth(ctx context.Context, req *v1.UpsertRequest) (*v1.AuthR
   md, _ := metadata.FromIncomingContext(ctx)
   // grab user token from metadata
   values := md.Get("Authorization")
-  if len(values) > 0 {
+  logReq := fmt.Sprintf("GetAuth Headers: %v", values[0])
+
+  logger.Log.Info(logReq)
+  typeOfBlankHeader := reflect.TypeOf(values[0])
+  logReq = fmt.Sprintf("GetAuth Headers: %v", typeOfBlankHeader)
+
+  logger.Log.Info(logReq)
+  if values[0] != "undefined" {
     reqToken := values[0]
     // validate the token user and request user
     claims, err := s.tokenService.Decode(reqToken)
@@ -166,7 +178,7 @@ func (s *handler) GetAuth(ctx context.Context, req *v1.UpsertRequest) (*v1.AuthR
   } else {
     return &v1.AuthResponse{
       Api:    apiVersion,
-      Status: "no auth token",
+      Status: "no",
     }, nil
   }
 
