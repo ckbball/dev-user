@@ -71,10 +71,6 @@ func (s *handler) CreateUser(ctx context.Context, req *v1.UpsertRequest) (*v1.Up
     return nil, err
   }
 
-  logReq := fmt.Sprintf("CreateUser request: %v", req)
-
-  logger.Log.Info(logReq)
-
   // generate hash of password
   hashedPass, err := bcrypt.GenerateFromPassword([]byte(req.User.Password), bcrypt.DefaultCost)
   if err != nil {
@@ -101,10 +97,6 @@ func (s *handler) Login(ctx context.Context, req *v1.UpsertRequest) (*v1.UpsertR
   if err := s.checkAPI(req.Api); err != nil {
     return nil, err
   }
-
-  logReq := fmt.Sprintf("Login request: %v", req)
-
-  logger.Log.Info(logReq)
 
   // get user from email
   user, err := s.repo.GetByEmail(req.Email)
@@ -134,7 +126,7 @@ func (s *handler) Login(ctx context.Context, req *v1.UpsertRequest) (*v1.UpsertR
   // return
   return &v1.UpsertResponse{
     Api:    apiVersion,
-    Status: "Created",
+    Status: "Success",
     Token:  token,
     // maybe in future add more data to response about the added user.
   }, nil
@@ -147,34 +139,41 @@ func (s *handler) GetAuth(ctx context.Context, req *v1.UpsertRequest) (*v1.AuthR
   md, _ := metadata.FromIncomingContext(ctx)
   // grab user token from metadata
   values := md.Get("Authorization")
-  logReq := fmt.Sprintf("GetAuth Headers: %v", values[0])
+  /*
+     logReq := fmt.Sprintf("auth when no auth Headers: %v", values)
 
-  logger.Log.Info(logReq)
-  typeOfBlankHeader := reflect.TypeOf(values[0])
-  logReq = fmt.Sprintf("GetAuth Headers: %v", typeOfBlankHeader)
+     logger.Log.Info(logReq)
+  */
+  // check if Authorization header existed, if not return error
+  if len(values) > 0 {
+    // check if Authorization header contains token, if not return error
+    if values[0] != "undefined" {
+      reqToken := values[0]
+      // validate the token user and request user
+      claims, err := s.tokenService.Decode(reqToken)
+      if err != nil {
+        return nil, err
+      }
 
-  logger.Log.Info(logReq)
-  if values[0] != "undefined" {
-    reqToken := values[0]
-    // validate the token user and request user
-    claims, err := s.tokenService.Decode(reqToken)
-    if err != nil {
-      return nil, err
+      user, err := s.repo.GetById(claims.User.Id)
+      if err != nil {
+        return nil, errors.New("Invalid Token")
+      }
+
+      out := exportUserModel(user)
+
+      return &v1.AuthResponse{
+        Api:    apiVersion,
+        Status: "test",
+        User:   out,
+        // maybe in future add more data to response about the added user.
+      }, nil
+    } else {
+      return &v1.AuthResponse{
+        Api:    apiVersion,
+        Status: "no",
+      }, nil
     }
-
-    user, err := s.repo.GetById(claims.User.Id)
-    if err != nil {
-      return nil, errors.New("Invalid Token")
-    }
-
-    out := exportUserModel(user)
-
-    return &v1.AuthResponse{
-      Api:    apiVersion,
-      Status: "test",
-      User:   out,
-      // maybe in future add more data to response about the added user.
-    }, nil
   } else {
     return &v1.AuthResponse{
       Api:    apiVersion,
