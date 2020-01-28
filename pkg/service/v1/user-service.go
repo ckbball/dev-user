@@ -142,26 +142,34 @@ func (s *handler) GetAuth(ctx context.Context, req *v1.UpsertRequest) (*v1.AuthR
   md, _ := metadata.FromIncomingContext(ctx)
   // grab user token from metadata
   values := md.Get("Authorization")
-  reqToken := values[0]
-  // validate the token user and request user
-  claims, err := s.tokenService.Decode(reqToken)
-  if err != nil {
-    return nil, err
+  if len(values) > 0 {
+    reqToken := values[0]
+    // validate the token user and request user
+    claims, err := s.tokenService.Decode(reqToken)
+    if err != nil {
+      return nil, err
+    }
+
+    user, err := s.repo.GetById(claims.User.Id)
+    if err != nil {
+      return nil, errors.New("Invalid Token")
+    }
+
+    out := exportUserModel(user)
+
+    return &v1.AuthResponse{
+      Api:    apiVersion,
+      Status: "test",
+      User:   out,
+      // maybe in future add more data to response about the added user.
+    }, nil
+  } else {
+    return &v1.AuthResponse{
+      Api:    apiVersion,
+      Status: "no auth token",
+    }, nil
   }
 
-  user, err := s.repo.GetById(claims.User.Id)
-  if err != nil {
-    return nil, errors.New("Invalid Token")
-  }
-
-  out := exportUserModel(user)
-
-  return &v1.AuthResponse{
-    Api:    apiVersion,
-    Status: "test",
-    User:   out,
-    // maybe in future add more data to response about the added user.
-  }, nil
 }
 
 func (s *handler) GetByEmail(ctx context.Context, req *v1.FindRequest) (*v1.FindResponse, error) {
